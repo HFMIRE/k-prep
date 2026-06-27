@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "title": "App crashes on login",
+    "body": "Logged in this morning and the whole app crashed. Happens sometimes. Please fix."
+  },
+  {
+    "id": 2,
+    "title": "NullPointerException in BillingService.calculateTariff when meterReadings is empty",
+    "body": "Stack trace attached. Reproduces 100% when a customer has a registered meter but zero submitted readings. Customers on the new variable tariff see a 500 on the dashboard. Started after deploy 4.12.0."
+  },
+  {
+    "id": 3,
+    "title": "Add dark mode to the customer portal",
+    "body": "Lots of users have asked for a dark theme on the account dashboard. Would be nice to have it follow the system setting."
+  },
+  {
+    "id": 4,
+    "title": "How do I rotate the API key for the white-label integration?",
+    "body": "We're integrating the billing API and need to rotate credentials quarterly. Couldn't find this in the docs. Is there an endpoint or is it manual?"
+  },
+  {
+    "id": 5,
+    "title": "CI pipeline flaky on the e2e step",
+    "body": "The end-to-end job fails roughly 1 in 4 runs with a timeout, then passes on retry. Slowing down every merge. Probably a race condition in the test setup, not the product."
+  },
+  {
+    "id": 6,
+    "title": "Payment data exposed in debug logs",
+    "body": "Noticed that the last 4 digits of card numbers and full billing addresses are being written to the application logs at INFO level in the payments service. These logs are shipped to a third-party aggregator. This is customer financial data."
+  },
+  {
+    "id": 7,
+    "title": "Docs for the Flex tariff webhook are out of date",
+    "body": "The payload example in the Flex integration guide still shows the v1 field names. The actual webhook sends v2 (camelCase, extra `gridEventId`). Cost us an afternoon."
+  },
+  {
+    "id": 8,
+    "title": "Something is wrong",
+    "body": "it doesnt work"
+  }
+]
