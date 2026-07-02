@@ -26,12 +26,10 @@ async function main() {
     async (issue) => (await triageIssue(issue)).data,
     // Scoring choice: agreement on type AND priority. A real submission might
     // weight these, or score type and priority separately — call out your choice.
-    
     (expected, out) => out.type === expected.type && out.priority === expected.priority,
   );
 
   for (const r of results) {
-    console.log(typeof r.output)
     const got = r.output ? `${r.output.type}/${r.output.priority}` : "—";
     console.log(
       `#${String(r.id).padEnd(3)} ${r.passed ? "PASS" : "FAIL"}  ` +

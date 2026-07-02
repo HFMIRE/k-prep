@@ -22,7 +22,7 @@ export const TriageSchema = z.object({
   confidence: z.number().min(0).max(1),
 });
 export type Triage = z.infer<typeof TriageSchema>;
-export async function triageIssue(_issue: RawIssue): Promise<StructuredResult<Triage>> {
+export async function triageIssue(issue: RawIssue): Promise<StructuredResult<Triage>> {
   const system =  `You are an issue-triage assistant for a developer platform team.
 Classify each issue with this rubric:
 - summary: a concise summary of the issue
@@ -37,11 +37,9 @@ Classify each issue with this rubric:
   const option = {
     schema: TriageSchema,
     system: system,
-    user: `Triage this issue.\n\n Title: ${_issue.title}\n\nBody:\n${_issue.body}`,
+    user: `Triage this issue.\n\n Title: ${issue.title}\n\nBody:\n${issue.body}`,
     model: "claude-haiku-4-5",
     maxTokens: 1024
-
-    
   }
   const result = await callStructured(option);  
   return result; 

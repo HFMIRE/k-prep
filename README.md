@@ -1,39 +1,27 @@
-# <Github issuer ranker>
-
-
+# GitHub Issue Triage Assistant
 
 ## Problem
-The problem this model is trying to solve is ranking and assigning issue that by adding more detail and trying to rank by assigning priority and type. 
+This tool triages incoming GitHub issues, it adds a one-line summary and classifies each by type and priority, so a team spends less time sorting its backlog by hand.
 
 ## Approach & key tradeoffs
-- I have refined the the prompt by using the system prompts to set out a set of guidelines that takes in the schema. This allows to have a consistent evaluate the issue. In the system prompt, I have added a detail on each catergory that I need the evaulte the issues. 
-
-- **Model choice:** I used claude haiku because it is cheaper and it is brillant for repeative task since this is providing surface insight into the issue, it can handle alot of issue. The token usage is less than sonnet which more expensive then it come to large batch. Also, Haiku provided faster response and the avg latency is <2 sec and cost less compared to the sonnet.
-- **Deliberately left out:** The model tends to overestimate the priority by one degree so if it meant to be low, it will assign the task as meduim. I need to see the model is doing this at a large scale and if can be correct by changing the prompt or by adding weight for each criteria so it can evalute it properly.
+- I moved the classification guidelines into the system prompt, with a definition for each category the model evaluates against. This keeps the evaluation consistent across issues.
+- **Model choice:** I used Claude Haiku. Triage is a high-volume, repetitive task that needs surface-level insight, and Haiku handles that at lower token cost than Sonnet, which gets expensive on large batches,  while also being faster (average latency under 2 seconds).
+- **Deliberately left out:** no web UI, persistence, or batching, the tool runs over a fixture set via CLI. In the time box, correctness of the classification mattered more than surface area.
 
 ## How I measured it
-- The metric. e.g. "type+priority agreement against a 6-case golden set: 75%."
-- What I'd track in production to know it's actually reducing developer toil. I would track if that is similar to developer experiece and if the assumption of the ai model was correct and if there was hidden sub task. 
+- **Type + priority agreement: 75% (6/8)** against the golden set.
+- **Type accuracy: 100% (8/8)** , every issue was classified into the correct type.
+- Both misses were *priority over-estimation* (chore/medium → high, docs/low → high), consistent with the systematic +1 priority bias I observed by eye. The failure mode is narrow and one-directional, which makes it fixable via prompt weighting or a calibration step.
+- **In production I'd track the human correction rate**, the share of AI-triaged issues a human re-labels, and **time-from-open-to-triaged**. Those two directly measure whether the tool is actually removing triage toil, rather than just moving it.
 
 ## Guardrails & risks
-- e.g. `needsMoreInfo`/`confidence` keep a human in the loop on low-detail issues rather than confidently mis-triaging. Add a flag for the human to add more detail. Add context in the sprint will help the model understand the importance in the context of the ticket
-- One real risk: prompt-injection via issue body, drift as the model updates, schema-validation failures. In a double-regulated context (energy + financial  data) I'd add traceable per-call logging — the ISO 42001 "measurable + auditable" direction. Also, old issuse and redudant tickets and priority and scope changes. 
+- `needsMoreInfo` / `confidence` keep a human in the loop on low-detail issues rather than confidently mis-triaging. I'd add a flag for a human to supply missing detail, and pulling in sprint context would help the model weigh importance relative to the ticket.
+- Real risks: prompt injection via the issue body, drift as the model updates, and schema-validation failures. In a double-regulated context (energy + financial data) I'd add traceable per-call logging, the ISO 42001 "measurable and auditable" direction. Other risks: stale issues, duplicate tickets, and priority or scope changes over time.
 
 ## What I'd do with more time
-- Adding weight the critera so model the can understand the priority?
-- Adding more context about the sprint and it objectives 
-- Fix the model assumption over raising the priority 
-
-
-
-## What's in the box
-- `src/llm.ts` — LLM wrapper: validated structured output + cost/latency tracking. **Reusable plumbing — have this ready before the real repo lands.**
-- `src/metrics.ts` — roll up cost/latency across a batch.
-- `src/eval.ts` — generic golden-set eval harness (the thing most candidates skip).
-- `src/triage.ts` — the practice exercise (schema given, `triageIssue` is yours to write).
-- `src/index.ts` / `src/eval-run.ts` — run + score.
-- `src/reference/triage.ref.ts` — reference solution. Don't open until you've tried.
-- `fixtures/` — sample issues + golden labels.
+- Add weighting to the criteria so the model calibrates priority better (fixing the inflation bias).
+- Feed in sprint context and objectives so priority reflects what the team is actually working on.
+- Split the eval: score type/priority on fully-specified issues, and separately assert `needsMoreInfo` on under-specified ones, so the metric isn't diluted by cases the tool correctly can't judge.
 
 ## Run it
 ```bash
