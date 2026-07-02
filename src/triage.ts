@@ -22,20 +22,25 @@ export const TriageSchema = z.object({
   confidence: z.number().min(0).max(1),
 });
 export type Triage = z.infer<typeof TriageSchema>;
-
-// ───────────────────────────────────────────────────────────────────────────
-//  YOUR EXERCISE  →  see BRIEF.md
-//  Implement triageIssue using callStructured from ./llm. Aim for a working
-//  vertical slice first, then improve the prompt. A reference solution lives in
-//  src/reference/triage.ref.ts — try it yourself before opening it.
-// ───────────────────────────────────────────────────────────────────────────
 export async function triageIssue(_issue: RawIssue): Promise<StructuredResult<Triage>> {
+  const system =  `You are an issue-triage assistant for a developer platform team.
+Classify each issue with this rubric:
+- summary: a concise summary of the issue
+- type: bug (broken behaviour) | feature (new capability) | question (how-to) | docs (documentation gap) | chore (build/CI/deps/maintenance)
+- priority: critical (outage, data loss, security) | high (core flow broken, many users) | medium (degraded, has a workaround) | low (cosmetic/nice-to-have) compare it issue provided to the rubric and priorities the score from the rubric first and and then taking into account the impact on users and the business
+- component: best guess at the affected area, or null if unclear
+- needsMoreInfo: true when the issue lacks the detail needed to action it (e.g. a bug with no repro steps or error)
+- confidence: a number between 0 and 1 indicating how confident you are in your classification
+
+`;
+  
   const option = {
     schema: TriageSchema,
-    system: "You are a software engineering assistant.",
-    user: "Please triage the following GitHub issue and provide a structured response in JSON format according to the TriageSchema. Ensure that your response includes a summary, type, priority, component , needsMoreInfo, and confidence level between 0 and 1. When assigning the task with the a  type, consider the action that should be taken to migrate this action in the future from arising and find a fitting type and consider evaluating against  the type we have available from bug, feature, question, docs and chore and urgency associated with  it. When weighing the priority of the task, consider the type of task it like it is a feature, bug, question and chore  and add it to the final weighting of the priority. Here is the issue:\n\n" + JSON.stringify(_issue, null, 2),
-    model: "claude-sonnet-4-6",
+    system: system,
+    user: `Triage this issue.\n\n Title: ${_issue.title}\n\nBody:\n${_issue.body}`,
+    model: "claude-haiku-4-5",
     maxTokens: 1024
+
     
   }
   const result = await callStructured(option);  

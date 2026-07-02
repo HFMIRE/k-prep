@@ -13,7 +13,6 @@ interface Golden {
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const issues: RawIssue[] = JSON.parse(readFileSync(join(root, "fixtures/issues.json"), "utf8"));
 const golden: Golden[] = JSON.parse(readFileSync(join(root, "fixtures/golden.json"), "utf8"));
-
 const byId = new Map(issues.map((i) => [i.id, i]));
 const cases: EvalCase<RawIssue, Golden>[] = golden.map((g) => {
   const input = byId.get(g.id);
@@ -32,6 +31,7 @@ async function main() {
   );
 
   for (const r of results) {
+    console.log(typeof r.output)
     const got = r.output ? `${r.output.type}/${r.output.priority}` : "—";
     console.log(
       `#${String(r.id).padEnd(3)} ${r.passed ? "PASS" : "FAIL"}  ` +

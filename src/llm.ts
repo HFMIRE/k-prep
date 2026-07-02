@@ -30,7 +30,6 @@ export interface CallOpts<T> {
   maxTokens?: number;
 }
 
-/** Pull the first JSON object/array out of a model response, tolerating ``` fences. */
 function extractJson(text: string): string {
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
   const body = fenced?.[1] ?? text;

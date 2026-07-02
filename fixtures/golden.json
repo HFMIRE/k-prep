@@ -1,8 +1,10 @@
 [
-  { "id": 2, "type": "bug", "priority": "high" },
+  { "id": 1, "type": "bug", "priority": "high" },
+  { "id": 2, "type": "bug", "priority": "critical" },
   { "id": 3, "type": "feature", "priority": "low" },
   { "id": 4, "type": "question", "priority": "medium" },
   { "id": 5, "type": "chore", "priority": "medium" },
   { "id": 6, "type": "bug", "priority": "critical" },
-  { "id": 7, "type": "docs", "priority": "low" }
+  { "id": 7, "type": "docs", "priority": "low" },
+  { "id": 8, "type": "bug", "priority": "low" }
 ]
